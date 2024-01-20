@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart'; // ignore: depend_on_referenced_packages
 
 void main() {
   runApp(const MyApp());
@@ -48,10 +48,11 @@ class _MyHomePageState extends State<MyHomePage> {
       // final imagePermanent = await saveFilePermanently(image.path);
 
       setState(() {
-        this._image = imageTemporary;
+        _image = imageTemporary;
         // this._image = imagePermanent;
       });
     } on PlatformException catch (e) {
+      // ignore: avoid_print
       print('Failed to pick image: $e');
     }
   }
@@ -68,12 +69,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pick an image'),
+        title: const Text('Pick an image'),
       ),
       body: Center(
         child: Column(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 40,
             ),
             _image != null
@@ -84,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     fit: BoxFit.cover,
                   )
                 : Image.network('https://picsum.photos/250?image=9'),
-            SizedBox(
+            const SizedBox(
               height: 40,
             ),
             CustomButton(
@@ -102,10 +103,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+// ignore: non_constant_identifier_names
 Widget CustomButton(
     {required String title,
     required IconData icon,
     required VoidCallback onClick}) {
+  // ignore: sized_box_for_whitespace
   return Container(
     width: 280,
     child: ElevatedButton(
@@ -113,7 +116,7 @@ Widget CustomButton(
       child: Row(
         children: [
           Icon(icon),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
           Text(title)
