@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_tflite/flutter_tflite.dart';
+
+import 'dart:developer' as devtools;
 
 void main() {
   runApp(const MyApp());
@@ -10,7 +13,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -36,37 +38,68 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   File? _selectedFile;
   bool _inProcess = false;
+  String label = '';
+  double confidence = 0.0;
+
+  Future _displayBottomSheet(BuildContext context) {
+    return showModalBottomSheet(
+        context: context,
+        builder: (context) => Container(
+              height: 200,
+              width: MediaQuery.of(context).size.width,
+              child: Center(
+                  child: Text(
+                "$label ${confidence.toStringAsFixed(0)}%",
+                style: const TextStyle(
+                  fontSize: 24,
+                ),
+              )),
+            ));
+  }
+
+  Future<void> _tfliteInit() async {
+    String? res = await Tflite.loadModel(
+        model: "assets/model.tflite",
+        labels: "assets/labels.txt",
+        numThreads: 1, // defaults to 1
+        isAsset:
+            true, // defaults to true, set to false to load resources outside assets
+        useGpuDelegate:
+            false // defaults to false, set to true to use GPU delegate
+        );
+  }
 
   Widget getImageWidget() {
     if (_selectedFile != null) {
       return Image.file(
         _selectedFile!, // null-aware operator to assert non-null before passing
-        width: 360,
-        height: 150,
+        width: 300,
+        height: 300,
         fit: BoxFit.cover,
       );
     } else {
       return Image.asset(
         "assets/placeholder.jpg",
-        width: 360,
-        height: 150,
+        width: 300,
+        height: 300,
         fit: BoxFit.cover,
       );
     }
   }
 
-  getImage(ImageSource source) async {
+  getImage(BuildContext context, ImageSource source) async {
     setState(() {
       _inProcess = true;
     });
+
     XFile? image = await ImagePicker().pickImage(source: source);
     if (image != null) {
       CroppedFile? cropped = await ImageCropper().cropImage(
         sourcePath: image.path,
-        aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 6.6),
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
         compressQuality: 100,
-        maxWidth: 2560,
-        maxHeight: 1440,
+        maxWidth: 700,
+        maxHeight: 700,
         compressFormat: ImageCompressFormat.jpg,
         uiSettings: [
           AndroidUiSettings(
@@ -83,6 +116,25 @@ class _MyHomePageState extends State<MyHomePage> {
           _selectedFile = File(cropped.path);
           _inProcess = false;
         });
+
+        // inference
+        var result = await Tflite.runModelOnImage(
+            path: image.path,
+            imageMean: 0.0,
+            imageStd: 255.0,
+            numResults: 2,
+            threshold: 0.2,
+            asynch: true);
+
+        if (result == null) {
+          devtools.log("Result is null");
+        } else {
+          setState(() {
+            confidence = (result[0]['confidence'] * 100);
+            label = result[0]['label'].toString();
+            _displayBottomSheet(context);
+          });
+        }
       } else {
         setState(() {
           _inProcess = false;
@@ -93,6 +145,18 @@ class _MyHomePageState extends State<MyHomePage> {
         _inProcess = false;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Tflite.close();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _tfliteInit();
   }
 
   @override
@@ -114,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       style: TextStyle(color: Colors.white),
                     ),
                     onPressed: () {
-                      getImage(ImageSource.camera);
+                      getImage(context, ImageSource.camera);
                     }),
                 MaterialButton(
                     color: Colors.deepOrange,
@@ -123,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       style: TextStyle(color: Colors.white),
                     ),
                     onPressed: () {
-                      getImage(ImageSource.gallery);
+                      getImage(context, ImageSource.gallery);
                     })
               ],
             )
@@ -137,7 +201,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: CircularProgressIndicator(),
                 ),
               )
-            : const Center()
+            : const Center(),
       ],
     ));
   }
