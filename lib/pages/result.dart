@@ -14,29 +14,31 @@ class ResultPage extends StatefulWidget {
 
 class _ResultPageState extends State<ResultPage> {
   late Map<String, dynamic> _receivedData;
-  late bool isCounterfeit;
   late IconData icon;
   late Color iconColor;
   late String message;
+  late double confidence;
 
   @override
   void initState() {
     super.initState();
     _receivedData = widget.data;
-    isCounterfeit = _receivedData['isCounterfeit'];
     updateResultDisplay();
   }
 
   void updateResultDisplay() {
-    if (_receivedData['isCounterfeit']) {
+    if (_receivedData['label'].startsWith('fake')) {
       icon = Icons.error_outline;
       iconColor = Colors.red;
-      message = "LIKELY COUNTERFEIT";
-    } else {
+      message = "COUNTERFEIT";
+      // message = _receivedData['label'];
+    } else if (_receivedData['label'].startsWith('real')){
       icon = Icons.check_circle_outline;
       iconColor = Colors.green;
-      message = "LIKELY GENUINE";
+      message = "GENUINE";
+      // message = _receivedData['label'];
     }
+    confidence = _receivedData['confidence'];
   }
 
   @override
@@ -65,46 +67,32 @@ class _ResultPageState extends State<ResultPage> {
                       size: 150,
                       color: iconColor,
                     ),
-                    const SizedBox(height: 10),
+                    // const SizedBox(height: 10),
+                    Text(
+                      "${confidence.toStringAsFixed(0)}%",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 70,
+                        fontWeight: FontWeight.w900
+                      )
+                    ),
                     Text(
                       message,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 45,
-                        fontWeight: FontWeight.w600
+                        fontWeight: FontWeight.w900
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
             )
           ],
         )
-        // child: RotatedBox(
-        //   quarterTurns: 1,
-        //   child: Image.file(
-        //       _receivedData['file'],
-        //       fit: BoxFit.cover,
-        //   )
-        // )
       ),
     );
   }
 }
-
-// Future _displayBottomSheet(BuildContext context) {
-  //   return showModalBottomSheet(
-  //     context: context,
-  //     builder: (context) => Container(
-  //       height: 200,
-  //       width: MediaQuery.of(context).size.width,
-  //       child: Center(
-  //         child: Text(
-  //         "Hello",
-  //         style: const TextStyle(
-  //           fontSize: 24,
-  //         ),
-  //       )),
-  //     ));
-  // }
