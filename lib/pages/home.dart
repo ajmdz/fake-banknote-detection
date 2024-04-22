@@ -34,8 +34,10 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _tfliteInit() async {
     String? res = await Tflite.loadModel(
-      model: "assets/model_unquant.tflite",
-      labels: "assets/labels.txt",
+      model: "assets/model_vgg16.tflite",
+      labels: "assets/labels_vgg16.txt",
+      // model: "assets/model_unquant.tflite",
+      // labels: "assets/labels.txt",
       numThreads: 1, // defaults to 1
       isAsset: true, // defaults to true, set to false to load resources outside assets
       useGpuDelegate: false // defaults to false, set to true to use GPU delegate
@@ -57,12 +59,12 @@ class _HomePageState extends State<HomePage> {
     if (image != null) {
       CroppedFile? cropped = await ImageCropper().cropImage(
         sourcePath: image.path,
-        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-        // aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 3),
+        // aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 3),
         compressQuality: 100,
         // maxWidth: 2560,
-        maxWidth: 1920,
-        maxHeight: 1440,
+        // maxWidth: 400,
+        // maxHeight: 300,
         compressFormat: ImageCompressFormat.jpg,
         uiSettings: [
           AndroidUiSettings(
@@ -85,7 +87,7 @@ class _HomePageState extends State<HomePage> {
           path: image.path,
           imageMean: 0.0,
           imageStd: 255.0,
-          numResults: 2,
+          numResults: 4,
           threshold: 0.2,
           asynch: true
         );

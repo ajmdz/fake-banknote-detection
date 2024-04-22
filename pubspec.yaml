@@ -68,6 +68,8 @@ flutter:
     - assets/R.gif
     - assets/model_unquant.tflite
     - assets/labels.txt
+    - assets/model_vgg16.tflite
+    - assets/labels_vgg16.txt
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
