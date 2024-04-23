@@ -1,11 +1,14 @@
 import 'dart:io';
+import 'package:counterfeat/classes.dart';
 import 'package:counterfeat/pages/result.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:counterfeat/components/button_with_icon.dart';
-import 'package:tflite_v2/tflite_v2.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:counterfeat/classifier.dart';
+import 'package:image/image.dart' as img;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -17,31 +20,32 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  File? _selectedFile;
+  // File? _selectedFile;
   bool _inProcess = false;
+  bool initialized = false;
+  final classifier = Classifier();
+  img.Image? inputImage;
+  late Interpreter interpreter;
+  
   
   @override
   void initState() {
     super.initState();
-    _tfliteInit();
+    initialize();
   }
 
   @override
   void dispose() {
     super.dispose();
-    Tflite.close();
+    interpreter.close();
   }
 
-  Future<void> _tfliteInit() async {
-    String? res = await Tflite.loadModel(
-      model: "assets/model_vgg16.tflite",
-      labels: "assets/labels_vgg16.txt",
-      // model: "assets/model_unquant.tflite",
-      // labels: "assets/labels.txt",
-      numThreads: 1, // defaults to 1
-      isAsset: true, // defaults to true, set to false to load resources outside assets
-      useGpuDelegate: false // defaults to false, set to true to use GPU delegate
-    );
+  Future<void> initialize() async {
+    await classifier.loadModel();
+
+    setState(() {
+      initialized = true;
+    });
   }
 
   navigateResult(Map<String,dynamic> data) {
@@ -59,10 +63,8 @@ class _HomePageState extends State<HomePage> {
     if (image != null) {
       CroppedFile? cropped = await ImageCropper().cropImage(
         sourcePath: image.path,
-        // aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
         aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 3),
         compressQuality: 100,
-        // maxWidth: 2560,
         // maxWidth: 400,
         // maxHeight: 300,
         compressFormat: ImageCompressFormat.jpg,
@@ -77,35 +79,23 @@ class _HomePageState extends State<HomePage> {
       );
 
       if (cropped != null) {
+        final selectedFile = File(cropped.path);
+        // final bytes = await selectedFile.readAsBytes();
+        final decodedImage = await img.decodeJpgFile(cropped.path);
+
+        // INFERENCE
+        final result = await classifier.predict(decodedImage!);
+
         setState(() {
-          _selectedFile = File(cropped.path);
           _inProcess = false;
         });
 
-        // INFERENCE
-        var result = await Tflite.runModelOnImage(
-          path: image.path,
-          imageMean: 0.0,
-          imageStd: 255.0,
-          numResults: 4,
-          threshold: 0.2,
-          asynch: true
-        );
-
-        if (result != null) {
-          navigateResult({
-            'file': _selectedFile,
-            'label':  result[0]['label'].toString(),
-            'confidence': result[0]['confidence'] * 100,
-          });
-        } else {
-          Fluttertoast.showToast(
-            msg: "Error: model output is null",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            textColor: Colors.white
-          );
-        }
+        // if (result != null) {
+        navigateResult({
+          'file': selectedFile,
+          'label':  result['label'],
+          'confidence': result['confidence'] * 100.0,
+        });
 
       } else {
         setState(() {

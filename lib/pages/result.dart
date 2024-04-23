@@ -30,13 +30,13 @@ class _ResultPageState extends State<ResultPage> {
     if (_receivedData['label'].startsWith('fake')) {
       icon = Icons.error_outline;
       iconColor = Colors.red;
-      message = "COUNTERFEIT";
-      // message = _receivedData['label'];
+      // message = "COUNTERFEIT";
+      message = _receivedData['label'];
     } else if (_receivedData['label'].startsWith('real')){
       icon = Icons.check_circle_outline;
       iconColor = Colors.green;
-      message = "GENUINE";
-      // message = _receivedData['label'];
+      // message = "GENUINE";
+      message = _receivedData['label'];
     }
     confidence = _receivedData['confidence'];
   }
