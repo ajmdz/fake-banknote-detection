@@ -33,6 +33,9 @@ dependencies:
   image_picker: ^1.0.7
   image_cropper: ^5.0.1
   path_provider: ^2.1.2
+  fluttertoast: ^8.2.5
+  tflite_flutter: ^0.10.4
+  image: ^4.1.7
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -64,8 +67,10 @@ flutter:
     - assets/placeholder.jpg
     - assets/logo.png
     - assets/R.gif
-    - assets/camera.svg
-    - assets/gallery.svg
+    - assets/model_unquant.tflite
+    - assets/labels.txt
+    - assets/model_vgg16.tflite
+    - assets/labels_vgg16.txt
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
