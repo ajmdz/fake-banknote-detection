@@ -36,6 +36,7 @@ dependencies:
   fluttertoast: ^8.2.5
   tflite_flutter: ^0.10.4
   image: ^4.1.7
+  logger: ^2.2.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -69,8 +70,8 @@ flutter:
     - assets/R.gif
     - assets/model_unquant.tflite
     - assets/labels.txt
-    - assets/model_vgg16.tflite
-    - assets/labels_vgg16.txt
+    - assets/mobnetV2(2).tflite
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
