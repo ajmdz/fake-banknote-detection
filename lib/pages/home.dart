@@ -1,11 +1,9 @@
 import 'dart:io';
-import 'package:counterfeat/classes.dart';
 import 'package:counterfeat/pages/result.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:counterfeat/components/button_with_icon.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:counterfeat/classifier.dart';
 import 'package:image/image.dart' as img;
