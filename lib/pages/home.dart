@@ -59,47 +59,39 @@ class _HomePageState extends State<HomePage> {
     });
     XFile? image = await ImagePicker().pickImage(source: source);
     if (image != null) {
-      CroppedFile? cropped = await ImageCropper().cropImage(
-        sourcePath: image.path,
-        aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 3),
-        compressQuality: 100,
-        // maxWidth: 400,
-        // maxHeight: 300,
-        compressFormat: ImageCompressFormat.jpg,
-        uiSettings: [
-          AndroidUiSettings(
-            toolbarColor: Colors.grey.shade300,
-            toolbarTitle: "Crop Image",
-            statusBarColor: Colors.grey.shade900,
-            backgroundColor: Colors.white,
-          )
-        ],
-      );
+      // CroppedFile? cropped = await ImageCropper().cropImage(
+      //   sourcePath: image.path,
+      //   aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 3),
+      //   compressQuality: 100,
+      //   // maxWidth: 400,
+      //   // maxHeight: 300,
+      //   compressFormat: ImageCompressFormat.jpg,
+      //   uiSettings: [
+      //     AndroidUiSettings(
+      //       toolbarColor: Colors.grey.shade300,
+      //       toolbarTitle: "Crop Image",
+      //       statusBarColor: Colors.grey.shade900,
+      //       backgroundColor: Colors.white,
+      //     )
+      //   ],
+      // );
+      final selectedFile = File(image.path);
+      // final bytes = await selectedFile.readAsBytes();
+      final decodedImage = await img.decodeJpgFile(image.path);
 
-      if (cropped != null) {
-        final selectedFile = File(cropped.path);
-        // final bytes = await selectedFile.readAsBytes();
-        final decodedImage = await img.decodeJpgFile(cropped.path);
+      // INFERENCE
+      final result = await classifier.predict(decodedImage!);
 
-        // INFERENCE
-        final result = await classifier.predict(decodedImage!);
+      setState(() {
+        _inProcess = false;
+      });
 
-        setState(() {
-          _inProcess = false;
-        });
-
-        // if (result != null) {
-        navigateResult({
-          'file': selectedFile,
-          'label':  result['label'],
-          'confidence': result['confidence'] * 100.0,
-        });
-
-      } else {
-        setState(() {
-          _inProcess = false;
-        });
-      }
+      // if (result != null) {
+      navigateResult({
+        'file': selectedFile,
+        'label': result['label'],
+        'confidence': result['confidence'] * 100.0,
+      });
     } else {
       setState(() {
         _inProcess = false;

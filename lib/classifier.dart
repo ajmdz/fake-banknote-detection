@@ -36,37 +36,43 @@ class Classifier {
   Interpreter get interpreter => _interpreter;
 
   Float32List imgToFloat32List(img.Image image) {
-    Float32List inputBytes = Float32List(1 * 300 * 400 * 3);
+    Float32List convertedBytes= Float32List(1 * 300 * 400 * 3);
+    var buffer = Float32List.view(convertedBytes.buffer);
     int pixelIndex = 0;
+    // print('height: ${image.height}');
+    // print('width: ${image.width}');
     for (int y = 0; y < image.height; y++) {
       for (int x = 0; x < image.width; x++) {
         img.Pixel pixel = image.getPixel(x, y);
-        inputBytes[pixelIndex++] = pixel.r / 255.0;
-        inputBytes[pixelIndex++] = pixel.g / 255.0; 
-        inputBytes[pixelIndex++] = pixel.b / 255.0; 
+        buffer[pixelIndex++] = pixel.r / 255.0;
+        buffer[pixelIndex++] = pixel.g / 255.0; 
+        buffer[pixelIndex++] = pixel.b / 255.0; 
       }
     }
-    return inputBytes;
+    var result = convertedBytes.buffer.asFloat32List();
+    return result;
   }
 
   Future<Map<String, dynamic>> predict(img.Image image) async {
-    final resize = _measureExecutionTime(() {
-      img.Image resizedImage = img.copyResize(image, width: 400, height: 300);
-      return resizedImage;
-    }, 'Resizing');
+    // final resize = _measureExecutionTime(() {
+    //   img.Image resizedImage = img.copyResize(image, width: 400, height: 300);
+    //   return resizedImage;
+    // }, 'Resizing');
 
     final conversion = _measureExecutionTime(() {
-      return imgToFloat32List(resize.result);
+      return imgToFloat32List(image);
     }, 'Conversion');
 
+
     final input = conversion.result.reshape([1, 300, 400, 3]);
+    _logger.i('\n\n ${input.join(' ')}');
     final output = Float32List(1 * 4).reshape([1, 4]);
 
     final inference = _measureExecutionTime(() {
       interpreter.run(input, output);
     }, 'Inference');
 
-    _logger.i('Resizing took ${resize.time}ms to execute.');
+    // _logger.i('Resizing took ${resize.time}ms to execute.');
     _logger.i('Conversion took ${conversion.time}ms to execute.');
     _logger.i('Inference took ${inference.time}ms to execute.');
 
@@ -77,7 +83,7 @@ class Classifier {
     );
     return {
       'label': CategoricalClasses.values[predictionResult.indexOf(maxElement)].label,
-      'confidence': maxElement
+      'confidence': maxElement,
     };
   }
 

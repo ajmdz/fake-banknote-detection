@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'CounterFeat',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          
           useMaterial3: true,
         ),
         // home: ResultPage(data: {'message': 'test'})
