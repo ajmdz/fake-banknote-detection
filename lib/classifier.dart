@@ -12,7 +12,7 @@ class Classifier {
   late Interpreter _interpreter;
   final Logger _logger = Logger(printer: SimplePrinter() ,output: null);
 
-  static const String modelFile = "assets/mobnetV2(2).tflite";
+  static const String modelFile = "assets/mobnetv2_cv2.tflite";
 
   Future<void> loadModel({Interpreter? interpreter}) async {
     try {
