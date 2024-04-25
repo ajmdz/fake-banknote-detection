@@ -39,8 +39,6 @@ class Classifier {
     Float32List convertedBytes = Float32List(1 * 300 * 400 * 3);
     var buffer = Float32List.view(convertedBytes.buffer);
     int pixelIndex = 0;
-    print('height: ${image.height}');
-    print('width: ${image.width}');
     for (int y = 0; y < image.height; y++) {
       for (int x = 0; x < image.width; x++) {
         img.Pixel pixel = image.getPixel(x, y);
@@ -63,7 +61,7 @@ class Classifier {
     }, 'Conversion');
 
     final input = conversion.result.reshape([1, 300, 400, 3]);
-    _logger.i('${input.join(' ')}');
+    _logger.i(input.join(' '));
     final output = Float32List(1 * 4).reshape([1, 4]);
 
     final inference = _measureExecutionTime(() {
