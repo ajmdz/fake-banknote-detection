@@ -1,4 +1,6 @@
 import 'dart:io';
+// https://pub.dev/packages/permission_handler
+import 'package:counterfeat/components/loading.dart';
 import 'package:counterfeat/pages/result.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -82,18 +84,22 @@ class _HomePageState extends State<HomePage> {
         final decodedImage = await img.decodeJpgFile(cropped.path);
 
         // INFERENCE
-        final result = await classifier.predict(decodedImage!);
-
         setState(() {
-          _inProcess = false;
+          _inProcess = true;
         });
 
-        // if (result != null) {
-        navigateResult({
-          'file': selectedFile,
-          'label':  result['label'],
-          'confidence': result['confidence'] * 100.0,
+        classifier.predict(decodedImage!).then((result) {
+          setState(() {
+            _inProcess = false;
+          });
+          navigateResult({
+            'file': selectedFile,
+            'label':  result['label'],
+            'confidence': result['confidence'] * 100.0,
+          });
         });
+
+
 
       } else {
         setState(() {
@@ -118,8 +124,8 @@ class _HomePageState extends State<HomePage> {
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Image.asset(
                   "assets/logo.png",
-                  width: 250,
-                  height: 250,
+                  width: 300,
+                  height: 300,
                   fit: BoxFit.cover,
                 ),
               ]),
@@ -158,13 +164,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           (_inProcess)
-              ? Container(
-                  color: Colors.white,
-                  height: MediaQuery.of(context).size.height * 0.95,
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                )
+              ? const Loading() 
               : const Center()
         ],
     ));

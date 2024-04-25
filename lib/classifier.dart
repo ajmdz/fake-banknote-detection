@@ -12,7 +12,7 @@ class Classifier {
   late Interpreter _interpreter;
   final Logger _logger = Logger(printer: SimplePrinter() ,output: null);
 
-  static const String modelFile = "assets/mobnetV2(2).tflite";
+  static const String modelFile = "assets/mobnetv2_cv2.tflite";
 
   Future<void> loadModel({Interpreter? interpreter}) async {
     try {
@@ -36,17 +36,18 @@ class Classifier {
   Interpreter get interpreter => _interpreter;
 
   Float32List imgToFloat32List(img.Image image) {
-    Float32List inputBytes = Float32List(1 * 300 * 400 * 3);
+    Float32List convertedBytes = Float32List(1 * 300 * 400 * 3);
+    var buffer = Float32List.view(convertedBytes.buffer);
     int pixelIndex = 0;
     for (int y = 0; y < image.height; y++) {
       for (int x = 0; x < image.width; x++) {
         img.Pixel pixel = image.getPixel(x, y);
-        inputBytes[pixelIndex++] = pixel.r / 255.0;
-        inputBytes[pixelIndex++] = pixel.g / 255.0; 
-        inputBytes[pixelIndex++] = pixel.b / 255.0; 
+        buffer[pixelIndex++] = pixel.r / 255.0;
+        buffer[pixelIndex++] = pixel.g / 255.0; 
+        buffer[pixelIndex++] = pixel.b / 255.0; 
       }
     }
-    return inputBytes;
+    return convertedBytes.buffer.asFloat32List();
   }
 
   Future<Map<String, dynamic>> predict(img.Image image) async {
@@ -60,6 +61,7 @@ class Classifier {
     }, 'Conversion');
 
     final input = conversion.result.reshape([1, 300, 400, 3]);
+    _logger.i(input.join(' '));
     final output = Float32List(1 * 4).reshape([1, 4]);
 
     final inference = _measureExecutionTime(() {
