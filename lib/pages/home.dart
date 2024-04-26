@@ -1,3 +1,4 @@
+// import 'dart:html' as darthtml;
 import 'dart:io';
 // https://pub.dev/packages/permission_handler
 import 'package:counterfeat/components/loading.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:counterfeat/components/button_with_icon.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:counterfeat/classifier.dart';
 import 'package:image/image.dart' as img;
@@ -115,6 +117,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final messenger = ScaffoldMessenger.of(context);
     return Scaffold(
       body: Stack(
         children: <Widget>[
@@ -144,8 +147,45 @@ class _HomePageState extends State<HomePage> {
                   ButtonWithIcon(
                       icon: const Icon(Icons.photo_camera, color: Colors.white),
                       label: "Camera",
-                      onPressed: () {
-                        getImage(ImageSource.camera);
+                      onPressed: () async {
+                        PermissionStatus status = await Permission.camera.request();
+                        if (status == PermissionStatus.granted) {
+                          getImage(ImageSource.camera);
+                        } else if (status == PermissionStatus.denied) {
+                          messenger.showSnackBar(SnackBar(
+                            content: const Text('Camera access is denied'),
+                            action: SnackBarAction(
+                              label: 'Open app settings', 
+                              onPressed: () {
+                                openAppSettings();
+                              } 
+                            ),
+                          ));
+                        } else if (status == PermissionStatus.limited){
+                          debugPrint('Permission is limited');
+                        } else if (status == PermissionStatus.restricted) {
+                          debugPrint('Permission is Restricted');
+                          messenger.showSnackBar(SnackBar(
+                            content: const Text('Allow app to use camera'),
+                            action: SnackBarAction(
+                              label: 'Open app settings', 
+                              onPressed: () {
+                                openAppSettings();
+                              } 
+                            ),
+                          ));
+                        } else if (status == PermissionStatus.permanentlyDenied) {
+                          debugPrint('Permission is Permanently Denied');
+                          messenger.showSnackBar(SnackBar(
+                            content: const Text('Allow app to use camera'),
+                            action: SnackBarAction(
+                              label: 'Open app settings', 
+                              onPressed: () {
+                                openAppSettings();
+                              } 
+                            ),
+                          ));
+                        }
                       })
                 ],
               ),
@@ -156,9 +196,47 @@ class _HomePageState extends State<HomePage> {
                   ButtonWithIcon(
                       icon: const Icon(Icons.collections, color: Colors.white),
                       label: "Choose from Gallery",
-                      onPressed: () {
-                        getImage(ImageSource.gallery);
-                      })
+                      onPressed: () async {
+                        PermissionStatus status = await Permission.storage.request();
+                        if (status == PermissionStatus.granted) {
+                          getImage(ImageSource.gallery);
+                        } else if (status == PermissionStatus.denied) {
+                          messenger.showSnackBar(SnackBar(
+                            content: const Text('Storage access is denied'),
+                            action: SnackBarAction(
+                              label: 'Open app settings', 
+                              onPressed: () {
+                                openAppSettings();
+                              } 
+                            ),
+                          ));
+                        } else if (status == PermissionStatus.limited){
+                          debugPrint('Permission is limited');
+                        } else if (status == PermissionStatus.restricted) {
+                          debugPrint('Permission is Restricted');
+                          messenger.showSnackBar(SnackBar(
+                            content: const Text('Allow app to access gallery'),
+                            action: SnackBarAction(
+                              label: 'Open app settings', 
+                              onPressed: () {
+                                openAppSettings();
+                              } 
+                            ),
+                          ));
+                        } else if (status == PermissionStatus.permanentlyDenied) {
+                          debugPrint('Permission is Permanently Denied');
+                          messenger.showSnackBar(SnackBar(
+                            content: const Text('Allow app to use gallery'),
+                            action: SnackBarAction(
+                              label: 'Open app settings', 
+                              onPressed: () {
+                                openAppSettings();
+                              } 
+                            ),
+                          ));
+                        }
+                      }
+                  )
                 ],
               )
             ],
