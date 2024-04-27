@@ -16,8 +16,9 @@ class _ResultPageState extends State<ResultPage> {
   late Map<String, dynamic> _receivedData;
   late IconData icon;
   late Color iconColor;
-  late String message;
+  late String message = "";
   late double confidence;
+  late String label;
 
   @override
   void initState() {
@@ -27,16 +28,20 @@ class _ResultPageState extends State<ResultPage> {
   }
 
   void updateResultDisplay() {
+    double confidenceThreshold = 50.0;
     if (_receivedData['label'].startsWith('fake')) {
       icon = Icons.error_outline;
       iconColor = Colors.red;
-      // message = "COUNTERFEIT";
-      message = _receivedData['label'];
+      label = 'FAKE';
     } else if (_receivedData['label'].startsWith('real')){
       icon = Icons.check_circle_outline;
       iconColor = Colors.green;
-      // message = "GENUINE";
-      message = _receivedData['label'];
+      label = 'GENUINE';
+    }
+    if (_receivedData['confidence'] < confidenceThreshold) {
+      icon = Icons.warning_amber_outlined;
+      iconColor = Colors.yellow.shade400;
+      message = 'Result may be inaccurate.\nTry a clearer image.';
     }
     confidence = _receivedData['confidence'];
   }
@@ -57,7 +62,7 @@ class _ResultPageState extends State<ResultPage> {
               )
             ),
             Container(
-              color: Colors.indigo.shade800.withOpacity(0.5),
+              color: const Color(0xFF6A3AD0).withOpacity(.7),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -69,22 +74,27 @@ class _ResultPageState extends State<ResultPage> {
                     ),
                     // const SizedBox(height: 10),
                     Text(
-                      "${confidence.toStringAsFixed(0)}%",
+                      "${confidence.toStringAsFixed(0)}% ${label}", // ignore: unnecessary_brace_in_string_interps
                       textAlign: TextAlign.center,
                       style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontStyle: FontStyle.normal,
+                        fontWeight: FontWeight.w900,
                         color: Colors.white,
-                        fontSize: 70,
-                        fontWeight: FontWeight.w900
-                      )
+                        fontSize: 55,
+                      ),
                     ),
                     Text(
                       message,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w700,
                         color: Colors.white,
-                        fontSize: 45,
-                        fontWeight: FontWeight.w900
+                        fontSize: 25,
                       ),
+                      maxLines: null,
+                      softWrap: true,
                     ),
                   ],
                 ),
