@@ -70,6 +70,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: fonts/Inter-Variable.ttf
+
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/placeholder.jpg
@@ -78,7 +83,7 @@ flutter:
     - assets/R.gif
     - assets/model_unquant.tflite
     - assets/labels.txt
-    - assets/mobnetv2_cv2.tflite
+    - assets/mobnetv2_cropped.tflite
     - assets/icon_500x500.png
 
 

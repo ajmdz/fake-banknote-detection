@@ -65,7 +65,7 @@ class _HomePageState extends State<HomePage> {
     if (image != null) {
       CroppedFile? cropped = await ImageCropper().cropImage(
         sourcePath: image.path,
-        aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 3),
+        aspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 6.6),
         compressQuality: 100,
         // maxWidth: 400,
         // maxHeight: 300,

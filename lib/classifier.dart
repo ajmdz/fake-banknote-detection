@@ -9,10 +9,12 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:logger/logger.dart';
 
 class Classifier {
+  final int width = 398;
+  final int height = 164;
   late Interpreter _interpreter;
   final Logger _logger = Logger(printer: SimplePrinter() ,output: null);
 
-  static const String modelFile = "assets/mobnetv2_cv2.tflite";
+  static const String modelFile = "assets/mobnetv2_cropped.tflite";
 
   Future<void> loadModel({Interpreter? interpreter}) async {
     try {
@@ -36,7 +38,7 @@ class Classifier {
   Interpreter get interpreter => _interpreter;
 
   Float32List imgToFloat32List(img.Image image) {
-    Float32List convertedBytes = Float32List(1 * 300 * 400 * 3);
+    Float32List convertedBytes = Float32List(1 * height * width * 3);
     var buffer = Float32List.view(convertedBytes.buffer);
     int pixelIndex = 0;
     for (int y = 0; y < image.height; y++) {
@@ -52,7 +54,7 @@ class Classifier {
 
   Future<Map<String, dynamic>> predict(img.Image image) async {
     final resize = _measureExecutionTime(() {
-      img.Image resizedImage = img.copyResize(image, width: 400, height: 300);
+      img.Image resizedImage = img.copyResize(image, width: width, height: height);
       return resizedImage;
     }, 'Resizing');
 
@@ -60,7 +62,7 @@ class Classifier {
       return imgToFloat32List(resize.result);
     }, 'Conversion');
 
-    final input = conversion.result.reshape([1, 300, 400, 3]);
+    final input = conversion.result.reshape([1, height, width, 3]);
     _logger.i(input.join(' '));
     final output = Float32List(1 * 4).reshape([1, 4]);
 
