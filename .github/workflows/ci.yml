@@ -3,6 +3,7 @@ on:
   pull_request:
     types:
       - closed
+  workflow_dispatch:
 
 
 jobs:
@@ -21,8 +22,8 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
 
-  build_and_release_android_debug:
-    name: Build and release Android app in debug mode
+  build_and_release_android:
+    name: Build and release Android app
     needs: [flutter_analyze]
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
@@ -36,9 +37,9 @@ jobs:
           channel: "stable"
       - run: flutter pub get
       - run: flutter clean
-      - run: flutter build apk --debug
+      - run: flutter build apk
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "build/app/outputs/apk/debug/*"
+          artifacts: "build/app/outputs/flutter-apk/app-release.apk"
           tag: v1.0.${{ github.run_number }}
           token: ${{ secrets.TOKEN }}
