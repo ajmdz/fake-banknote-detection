@@ -78,7 +78,7 @@ flutter:
     - assets/R.gif
     - assets/model_unquant.tflite
     - assets/labels.txt
-    - assets/mobnetv2_cv2.tflite
+    - assets/mobnetv2_cropped.tflite
     - assets/icon_500x500.png
 
 
